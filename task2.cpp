@@ -1,40 +1,90 @@
 #include <Arduino.h>
 #include "task1.h"
 
+String btnState(uint8_t btnState)
+{
+    if (btnState == HIGH)
+    {
+        return "OFF";
+    }
+    else
+        return "ON";
+}
 
-void task2(){
-    enum class Task2States{
+void task2()
+{
+    enum class TaskStates
+    {
         INIT,
-        WAIT_TO_TOGGLE_LED
+        WAIT_COMMANDS
     };
-    static Task2States task2State = Task2States::INIT;
-    static uint32_t lasTime;
-    static constexpr uint32_t INTERVAL = 125;
-    static constexpr uint8_t ledRed = 26;
-    static bool ledStatus = false;
 
-    switch(task2State){
-        case Task2States::INIT:{
-            pinMode(ledRed,OUTPUT);
-            lasTime = millis();
-            task2State = Task2States::WAIT_TO_TOGGLE_LED;
-            break;
-        }
+    static TaskStates taskState = TaskStates::INIT;
+    constexpr uint8_t led = 14;
+    constexpr uint8_t button = 12;
 
-        case Task2States::WAIT_TO_TOGGLE_LED:{
-            // evento 1:
-            uint32_t currentTime = millis();
-            if( (currentTime - lasTime) >= INTERVAL ){
-                lasTime = currentTime;
-                digitalWrite(ledRed,ledStatus);
-                ledStatus = !ledStatus;
+    switch (taskState)
+    {
+    case TaskStates::INIT:
+    {
+        Serial.begin(115200);
+        pinMode(led, OUTPUT);
+        digitalWrite(led, LOW);
+        pinMode(button, INPUT_PULLUP);
+
+        taskState = TaskStates::WAIT_COMMANDS;
+        break;
+    }
+    case TaskStates::WAIT_COMMANDS:
+    {
+        if (Serial.available() > 0)
+        {
+            String command = Serial.readStringUntil('\n');
+            if (command == "outON")
+            {
+                digitalWrite(led, HIGH);
+
+                Serial.print("1");
+                Serial.print('\n');
+
             }
-            break;
-        }
+            else if (command == "outOFF")
+            {
+                digitalWrite(led, LOW);
 
-        default:{
-            break;
+                Serial.print("0");
+                Serial.print('\n');
+            }
+            else if (command == "read")
+            {
+                if ((digitalRead(button) == LOW) && (digitalRead(led) == LOW))
+                {
+                    Serial.print("0,0");
+                    Serial.print('\n');
+                }
+                else if ((digitalRead(button) == HIGH) && (digitalRead(led) == LOW))
+                {
+                    Serial.print("1,0");
+                    Serial.print('\n');
+                }
+                else if ((digitalRead(button) == LOW) && (digitalRead(led) == HIGH))
+                {
+                    Serial.print("0,1");
+                    Serial.print('\n');
+                }
+                else if ((digitalRead(button) == HIGH) && (digitalRead(led) == HIGH))
+                {
+                    Serial.print("1,1");
+                    Serial.print('\n');
+                }
+            }
         }
+        break;
     }
 
+    default:
+    {
+        break;
+    }
+    }
 }
