@@ -54,25 +54,24 @@ void task2()
             }
             else if (command == "read")
             {
-                if ((digitalRead(button) == LOW) && (digitalRead(led) == LOW))
+                if ((digitalRead(button) == HIGH) && (digitalRead(led) == LOW))
                 {
-                    Serial.print("0,0");
-                    Serial.print('\n');
+                    Serial.print("0,0\n");
+
                 }
-                else if ((digitalRead(button) == HIGH) && (digitalRead(led) == LOW))
+                else if ((digitalRead(button) == LOW) && (digitalRead(led) == LOW))
                 {
-                    Serial.print("1,0");
-                    Serial.print('\n');
-                }
-                else if ((digitalRead(button) == LOW) && (digitalRead(led) == HIGH))
-                {
-                    Serial.print("0,1");
-                    Serial.print('\n');
+                    Serial.print("1,0\n");
+
                 }
                 else if ((digitalRead(button) == HIGH) && (digitalRead(led) == HIGH))
                 {
-                    Serial.print("1,1");
-                    Serial.print('\n');
+                    Serial.print("0,1\n");
+
+                }
+                else if ((digitalRead(button) == LOW) && (digitalRead(led) == HIGH))
+                {
+                    Serial.print("1,1\n");
                 }
             }
         }
